@@ -1,14 +1,14 @@
 // V-02 클래스 구성 · V-03 범주형 설명력 · V-04 최강 범주형 · V-05 타깃 연관 상위 · V-09 결측률
 import { Bar } from 'react-chartjs-2';
 import type { CategoricalSummary, FeatureScore, TargetSummary } from '../../../lib/schema';
-import { baseOptions, ChartFrame, count, fmt, pct, refLinePlugin, truncate, useTheme, withAlpha } from './setup';
+import { baseOptions, ChartFrame, classColors, count, fmt, pct, refLinePlugin, truncate, useTheme, withAlpha } from './setup';
 import styles from './charts.module.css';
 
 /** V-02: 가로 누적 막대 1줄 (HTML). 양성 = 강조색 */
 export function V02ClassComposition({ t }: { t: Extract<TargetSummary, { kind: 'classification' }> }) {
   const theme = useTheme();
-  const colorOf = (label: string, i: number) =>
-    t.positiveClass ? (label === t.positiveClass ? theme.accent : theme.muted) : [theme.accent, theme.series2, theme.muted, theme.negative][i % 4];
+  const multi = classColors(t.classes.map((c) => c.label), theme);
+  const colorOf = (label: string, i: number) => (t.positiveClass ? (label === t.positiveClass ? theme.accent : theme.muted) : multi[i]);
   return (
     <div>
       <div className={styles.stack} role="img" aria-label={t.classes.map((c) => `${c.label} ${pct(c.ratio)}`).join(', ')}>

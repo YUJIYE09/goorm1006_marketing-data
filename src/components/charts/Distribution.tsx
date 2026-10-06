@@ -1,7 +1,7 @@
 // V-01 타깃 분포 · V-06 수치형 구간별 타깃 · V-07 클래스별 분포 · V-08 이진 1의 비율 · 단변량 히스토그램
 import { Bar } from 'react-chartjs-2';
 import type { BinarySummary, NumericSummary, NumStats } from '../../../lib/schema';
-import { baseOptions, ChartFrame, count, fmt, pct, refLinePlugin, useTheme, withAlpha } from './setup';
+import { baseOptions, ChartFrame, classColors, count, fmt, pct, refLinePlugin, useTheme, withAlpha } from './setup';
 
 const edgeLabel = (edges: number[], i: number) => `${fmt(edges[i])}~${fmt(edges[i + 1])}`;
 
@@ -76,10 +76,10 @@ export function V07ClassHist({ s, positive }: { s: NumericSummary; positive: str
   const h = s.classHist;
   if (!h) return null;
   const labels = h.series[0].counts.map((_, i) => edgeLabel(h.edges, i));
-  const palette = [theme.muted, theme.accent, theme.series2, theme.negative];
+  const palette = classColors(h.series.map((s) => s.label), theme);
   const datasets = h.series.map((ser, i) => {
     const total = ser.counts.reduce((a, b) => a + b, 0) || 1;
-    const color = positive ? (ser.label === positive ? theme.accent : theme.muted) : palette[i % palette.length];
+    const color = positive ? (ser.label === positive ? theme.accent : theme.muted) : palette[i];
     return {
       label: ser.label,
       data: ser.counts.map((c) => (c / total) * 100),

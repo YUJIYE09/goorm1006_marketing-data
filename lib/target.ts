@@ -87,6 +87,11 @@ export function buildTarget(profile: Profile, name: string, taskOverride?: Task)
     for (let i = 0; i < n; i++) y[i] = codes[i] < 0 ? NaN : codes[i] === posCode ? 1 : 0;
     return { name, task, column: col, y, classes: levels, positiveClass: pos };
   }
-  for (let i = 0; i < n; i++) y[i] = codes[i] < 0 ? NaN : codes[i];
-  return { name, task: 'multiclass', column: col, y, classes: levels, positiveClass: null };
+  // 클래스 이름이 모두 숫자(예: 품질 점수 3~8)면 숫자 순서로, 아니면 빈도순으로 둔다
+  let order = levels.map((_, i) => i);
+  if (levels.every((l) => /^[+-]?\d+(\.\d+)?$/.test(l))) order = order.sort((a, b) => Number(levels[a]) - Number(levels[b]));
+  const remap = new Int32Array(levels.length);
+  order.forEach((old, i) => (remap[old] = i));
+  for (let i = 0; i < n; i++) y[i] = codes[i] < 0 ? NaN : remap[codes[i]];
+  return { name, task: 'multiclass', column: col, y, classes: order.map((i) => levels[i]), positiveClass: null };
 }

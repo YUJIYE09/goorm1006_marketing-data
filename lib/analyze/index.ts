@@ -37,7 +37,11 @@ export function analyze({ table, fileName, options = {}, sourceAvailable = true 
   const binary = analyzeBinary(ctx);
 
   const assoc = new Map<string, { score: number | null; metric: FeatureScore['metric'] }>();
-  for (const n of numeric) assoc.set(n.name, { score: n.association, metric: 'r' });
+  for (const n of numeric) {
+    // 다중 분류에서 수치형 연관은 상관비(√η²)로 계산했으므로 η²로 저장한다
+    if (target?.task === 'multiclass') assoc.set(n.name, { score: n.association === null ? null : n.association ** 2, metric: 'eta2' });
+    else assoc.set(n.name, { score: n.association, metric: 'r' });
+  }
   for (const b of binary) assoc.set(b.name, { score: b.association, metric: target?.task === 'multiclass' ? 'cramersV' : 'r' });
   for (const c of categorical) if (c.metric) assoc.set(c.name, { score: c.score, metric: c.metric });
   const top = topFeatures(ctx, assoc);

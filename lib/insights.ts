@@ -1,4 +1,4 @@
-// 6장 자동 인사이트 규칙 R-01 ~ R-15
+// 6장 자동 인사이트 규칙 R-01 ~ R-15, 추가 규칙 R-16(중복 행)·R-17(순서형 클래스)
 import type { Insight, ResultBody, Severity } from './schema';
 import { strength } from './analyze/relations';
 
@@ -12,7 +12,6 @@ export function buildInsights(r: Omit<ResultBody, 'insights'>): Insight[] {
   const out: Insight[] = [];
   const add = (rule: string, severity: Severity, text: string, columns: string[], section: string) =>
     out.push({ rule, severity, text, columns, section });
-  const isClass = r.task === 'binary' || r.task === 'multiclass';
   const fmtTarget = (v: number) => (r.task === 'binary' ? fmtPct(v) : fmtNum(v));
 
   // R-01 · R-02 누수
@@ -134,6 +133,27 @@ export function buildInsights(r: Omit<ResultBody, 'insights'>): Insight[] {
   for (const m of r.quality.missing.filter((x) => x.ratio >= 0.3))
     add('R-14', 'medium', `'${m.name}'의 결측이 ${fmtPct(m.ratio)}입니다. ${m.ratio >= 0.7 ? '제거를 권장합니다.' : '결측 여부 지시 변수를 만들거나 제거하세요.'}`, [m.name], 'quality');
 
+  // R-16 중복 행 (명세 6장에 없는 추가 규칙)
+  const dupRatio = r.overview.duplicateRows / Math.max(1, r.overview.rows);
+  if (r.overview.duplicateRows > 0)
+    add(
+      'R-16',
+      dupRatio >= 0.01 ? 'medium' : 'low',
+      `완전히 같은 행이 ${r.overview.duplicateRows.toLocaleString('ko-KR')}개(${fmtPct(dupRatio)}) 있습니다. 실제로 반복된 관측인지 확인하고, 아니라면 지우세요. 그대로 두면 교차검증에서 같은 행이 학습·검증에 함께 들어가 점수가 부풀려집니다.`,
+      [],
+      'overview',
+    );
+
+  // R-17 순서가 있는 숫자 클래스 (추가 규칙)
+  if (r.task === 'multiclass' && ts?.kind === 'classification' && ts.classes.every((c) => /^[+-]?\d+(\.\d+)?$/.test(c.label)))
+    add(
+      'R-17',
+      'info',
+      `'${r.target}'은 ${ts.classes[0].label}~${ts.classes[ts.classes.length - 1].label}처럼 순서가 있는 점수입니다. 작업 막대의 문제 유형을 '회귀'로 바꾸면 구간별 평균과 변수별 영향을 더 쉽게 볼 수 있습니다.`,
+      [r.target!],
+      'target',
+    );
+
   // R-15 항상
   const top = r.relations.topFeatures.slice(0, 3);
   add(
@@ -141,7 +161,7 @@ export function buildInsights(r: Omit<ResultBody, 'insights'>): Insight[] {
     'info',
     r.task === 'none'
       ? '타깃을 고르면 연관 변수와 누수 점검을 볼 수 있습니다.'
-      : `K-fold 교차검증으로 평가하세요 (${isClass ? '분류 ROC-AUC' : '회귀 R²·RMSE'}).${top.length ? ` 연관 상위 변수: ${top.map((f) => `${f.name}(${strength(f).toFixed(3)})`).join(', ')}.` : ''}`,
+      : `K-fold 교차검증으로 평가하세요 (${r.task === 'binary' ? '분류 ROC-AUC' : r.task === 'multiclass' ? '다중 분류 macro-F1·ROC-AUC(OvR)' : '회귀 R²·RMSE'}).${top.length ? ` 연관 상위 변수: ${top.map((f) => `${f.name}(${strength(f).toFixed(3)})`).join(', ')}.` : ''}`,
     [],
     'recommendations',
   );

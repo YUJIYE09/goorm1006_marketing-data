@@ -171,3 +171,20 @@ export function withAlpha(hex: string, alpha: number): string {
     .padStart(2, '0');
   return hex + a;
 }
+
+const RAMP_LIGHT = ['#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#104281', '#0d366b'];
+const RAMP_DARK = ['#184f95', '#1c5cab', '#2a78d6', '#5598e7', '#86b6ef', '#b7d3f6', '#cde2fb'];
+const CAT_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
+const CAT_DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
+
+/** 다중 분류 클래스 색. 숫자 클래스(순서형)는 한 색상의 진하기 순서, 그 밖은 고정 순서 8색 (9번째부터 회색) */
+export function classColors(labels: string[], theme: Theme): string[] {
+  const dark = theme.surface.toLowerCase() === '#1a1a19';
+  if (labels.length && labels.every((l) => /^[+-]?\d+(\.\d+)?$/.test(l))) {
+    const ramp = dark ? RAMP_DARK : RAMP_LIGHT;
+    const n = labels.length;
+    return labels.map((_, i) => ramp[n === 1 ? 3 : Math.round((i * (ramp.length - 1)) / (n - 1))]);
+  }
+  const cat = dark ? CAT_DARK : CAT_LIGHT;
+  return labels.map((_, i) => cat[i] ?? theme.muted);
+}
