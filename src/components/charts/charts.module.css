@@ -1,0 +1,15 @@
+.stack { display: flex; gap: 2px; height: 28px; border-radius: 6px; overflow: hidden; }
+.segment { min-width: 3px; }
+.legend { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-2); font-size: 14px; }
+.legend strong { color: var(--text); font-weight: 600; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
+.tag { margin-left: 6px; font-size: 12px; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--text); }
+.more, .legendNote { color: var(--text-3); font-size: 13px; margin: 6px 0 0; }
+.scrollX { overflow-x: auto; }
+.heatmap { width: auto; font-size: 12px; }
+.heatmap td { text-align: center; min-width: 44px; padding: 6px 4px; border: 2px solid var(--surface); border-radius: 4px; }
+.heatmap th { font-weight: 500; font-size: 12px; padding: 4px 6px; border: none; }
+.heatCol { vertical-align: bottom; height: 90px; }
+.heatCol span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "regions": ["iad1"],
+  "functions": {
+    "api/analyses/**/*.ts": { "maxDuration": 60, "memory": 2048 },
+    "api/cron/*.ts": { "maxDuration": 60 },
+    "api/uploads/*.ts": { "maxDuration": 10 },
+    "api/health.ts": { "maxDuration": 10 }
+  },
+  "crons": [{ "path": "/api/cron/cleanup-blobs", "schedule": "0 * * * *" }],
+  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+}

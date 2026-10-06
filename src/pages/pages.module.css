@@ -1,0 +1,12 @@
+.intro h1 { font-size: 26px; font-weight: 800; word-break: keep-all; }
+.intro p { color: var(--text-2); margin: 6px 0 0; }
+.exampleNote { font-size: 14px; color: var(--text-2); background: var(--surface-2); border-radius: 8px; padding: 8px 12px; }
+.titleRow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.fileTitle { font-size: 22px; font-weight: 800; overflow-wrap: anywhere; }
+.meta { color: var(--text-3); font-size: 13px; min-height: 18px; }
+.center { text-align: center; padding: 60px 0; color: var(--text-2); }
+.tableCard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
+.linkBtn { background: none; border: none; color: var(--critical); cursor: pointer; padding: 0; }
+.pager { display: flex; gap: 12px; align-items: center; justify-content: center; }
+.pager button { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.pager button:disabled { opacity: 0.5; cursor: not-allowed; }
